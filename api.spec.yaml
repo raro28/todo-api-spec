@@ -1,0 +1,250 @@
+openapi: "3.0.2"
+info:
+  title: Todo List API
+  version: "0.0.0"
+servers:
+  - url: http://0.0.0.0:3001/v0
+
+components:
+  parameters:
+    page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+    pageSize:
+      in: query
+      name: size
+      schema:
+        type: integer
+        default: 5
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  schemas:
+    Entity:
+      type: object
+      properties:
+        id:
+          type: integer
+    TaskList:
+      type: object
+      properties:
+        title:
+          type: string
+    Task:
+      type: object
+      properties:
+        title:
+          type: string
+        isCompleted:
+          type: boolean
+    Note:
+      type: object
+      properties:
+        title:
+          type: string
+        isCompleted:
+          type: boolean
+    TaskListEntity:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - $ref: "#/components/schemas/TaskList"
+    TaskEntity:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - $ref: "#/components/schemas/Task"
+paths:
+  /lists/{id}:
+    parameters:
+      - $ref: "#/components/parameters/id"
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskList"
+
+    delete:
+      responses:
+        "204":
+          description: OK
+
+    put:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskList"
+      responses:
+        "204":
+          description: OK
+
+  /lists/{id}/tasks:
+    parameters:
+      - $ref: "#/components/parameters/id"
+    get:
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TaskEntity"
+
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Task"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Entity"
+
+  /lists:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TaskListEntity"
+                  total:
+                    type: integer
+
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskList"
+      responses:
+        "201":
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Entity"
+
+  /tasks/{id}:
+    parameters:
+      - $ref: "#/components/parameters/id"
+    delete:
+      responses:
+        "204":
+          description: OK
+
+    put:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Task"
+      responses:
+        "204":
+          description: OK
+
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref:  "#/components/schemas/Task"
+
+
+  /tasks/{id}/notes:
+    parameters:
+      - $ref: "#/components/parameters/id"
+    get:
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Note"
+
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Task"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Entity"
+
+  /notes/{id}:
+    parameters:
+      - $ref: "#/components/parameters/id"
+    delete:
+      responses:
+        "204":
+          description: OK
+
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Note"
+      responses:
+        "204":
+          description: OK
+
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+
