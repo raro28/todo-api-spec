@@ -26,6 +26,38 @@ components:
       schema:
         type: integer
   schemas:
+    DataResult:
+      type: object
+      properties:
+        total:
+          type: integer
+    TaskListResult:
+      allOf:
+        - $ref: "#/components/schemas/DataResult"
+        - type: object
+          properties:
+                data:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/TaskListEntity"
+    TaskResult:
+      allOf:
+        - $ref: "#/components/schemas/DataResult"
+        - type: object
+          properties:
+                data:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/TaskEntity"
+    NoteResult:
+      allOf:
+        - $ref: "#/components/schemas/DataResult"
+        - type: object
+          properties:
+                data:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/NoteEntity"
     Entity:
       type: object
       properties:
@@ -46,10 +78,8 @@ components:
     Note:
       type: object
       properties:
-        title:
+        content:
           type: string
-        isCompleted:
-          type: boolean
     TaskListEntity:
       allOf:
         - $ref: "#/components/schemas/Entity"
@@ -58,6 +88,10 @@ components:
       allOf:
         - $ref: "#/components/schemas/Entity"
         - $ref: "#/components/schemas/Task"
+    NoteEntity:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - $ref: "#/components/schemas/Note"
 paths:
   /lists/{id}:
     parameters:
@@ -100,12 +134,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/TaskEntity"
+                $ref: '#/components/schemas/TaskResult'
 
     post:
       requestBody:
@@ -133,14 +162,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/TaskListEntity"
-                  total:
-                    type: integer
+                $ref: '#/components/schemas/TaskListResult'
 
     post:
       requestBody:
@@ -199,12 +221,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Note"
+                $ref: '#/components/schemas/NoteResult'
 
     post:
       requestBody:
@@ -212,7 +229,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Task"
+              $ref: "#/components/schemas/Note"
       responses:
         "201":
           description: OK
@@ -247,4 +264,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Note'
-

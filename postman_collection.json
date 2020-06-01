@@ -577,7 +577,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": \"<string>\",\n    \"isCompleted\": \"<boolean>\"\n}"
+									"raw": "{\n    \"content\": \"<string>\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/tasks/0/notes",
