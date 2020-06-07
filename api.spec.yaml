@@ -1,21 +1,36 @@
 openapi: "3.0.2"
 info:
   title: Todo List API
+  description: |
+    Defines the endpoints and operations that manage todo lists and their related tasks and notes.
+
+    See [Github repository](https://github.com/raro28/todo-api).
   version: "0.0.0"
+  contact:
+    name: Hector Diaz
+    url: https://github.com/raro28
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - url: http://0.0.0.0:3001/v0
+    description: mockoon server
+  - url: http://localhost:8080
+    description: spring-boot server
 
 components:
   parameters:
     page:
       in: query
       name: page
+      description: the 1 based page index
       schema:
         type: integer
         default: 1
     pageSize:
       in: query
       name: size
+      description: the greater than zero page size
       schema:
         type: integer
         default: 5
@@ -25,12 +40,35 @@ components:
       required: true
       schema:
         type: integer
+  responses:
+    NotFound:
+      description: Resource not found
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
   schemas:
+    Error:
+      type: object
+      properties:
+        timestamp:
+          type: string
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
     DataResult:
       type: object
       properties:
         total:
           type: integer
+          description: The total sum of entries in all pages
     TaskListResult:
       allOf:
         - $ref: "#/components/schemas/DataResult"
@@ -92,26 +130,53 @@ components:
       allOf:
         - $ref: "#/components/schemas/Entity"
         - $ref: "#/components/schemas/Note"
+
+tags:
+  - name: lists
+  - name: tasks
+  - name: notes
+
 paths:
   /lists/{id}:
     parameters:
       - $ref: "#/components/parameters/id"
     get:
+      tags:
+        - lists
+      operationId: listsIdGet
+      summary: Gets a task list by its id
       responses:
         "200":
-          description: OK
+          description: A task list
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskList"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     delete:
+      tags:
+        - lists
+      operationId: listsIdDelete
+      summary: Deletes a task list by its id
       responses:
         "204":
-          description: OK
+          description: Task list deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     put:
+      tags:
+        - lists
+      operationId: listsIdPut
+      summary: Replaces an existing task list
       requestBody:
+        description: The task list info to replace
         required: true
         content:
           application/json:
@@ -119,25 +184,44 @@ paths:
               $ref: "#/components/schemas/TaskList"
       responses:
         "204":
-          description: OK
+          description: Task list replaced
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /lists/{id}/tasks:
     parameters:
       - $ref: "#/components/parameters/id"
     get:
+      tags:
+        - lists
+        - tasks
+      operationId: listsIdTasksGet
+      summary: Gets a paginated list of tasks related to an existing task list
       parameters:
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/pageSize"
       responses:
         "200":
-          description: OK
+          description: A list of tasks
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskResult'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     post:
+      tags:
+        - lists
+        - tasks
+      operationId: listsIdTasksPost
+      summary: Creates a new task on an existing task list
       requestBody:
+        description: The task info to store
         required: true
         content:
           application/json:
@@ -145,27 +229,78 @@ paths:
               $ref: "#/components/schemas/Task"
       responses:
         "201":
-          description: OK
+          description: The id of the new Task
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Entity"
+          links:
+            tasksIdDelete:
+              operationId: tasksIdDelete
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'DELETE /tasks/{id}'
+            tasksIdGet:
+              operationId: tasksIdGet
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'GET /tasks/{id}'
+            tasksIdPut:
+              operationId: tasksIdPut
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'PUT /tasks/{id}'
+            tasksIdNotesGet:
+              operationId: tasksIdNotesGet
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'GET /tasks/{id}/notes'
+            tasksIdNotesPost:
+              operationId: tasksIdNotesPost
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'POST /tasks/{id}/notes'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /lists:
     get:
+      tags:
+        - lists
+      operationId: listsGet
+      summary: Gets a paginated list of task lists
       parameters:
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/pageSize"
       responses:
         "200":
-          description: OK
+          description: A list of task lists
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskListResult'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     post:
+      tags:
+        - lists
+      operationId: listsPost
+      summary: Creates a new task list
       requestBody:
+        description: The task list info to store
         required: true
         content:
           application/json:
@@ -173,22 +308,73 @@ paths:
               $ref: "#/components/schemas/TaskList"
       responses:
         "201":
-          description: ok
+          description: The id of the new task list
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Entity"
+          links:
+            listsIdDelete:
+              operationId: listsIdDelete
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'DELETE /lists/{id}'
+            listsIdGet:
+              operationId: listsIdGet
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'GET /lists/{id}'
+            listsIdPut:
+              operationId: listsIdPut
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'PUT /lists/{id}'
+            listsIdTasksGet:
+              operationId: listsIdTasksGet
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'GET /lists/{id}/tasks'
+            listsIdTasksPost:
+              operationId: listsIdTasksPost
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'POST /lists/{id}/tasks'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /tasks/{id}:
     parameters:
       - $ref: "#/components/parameters/id"
     delete:
+      tags:
+        - tasks
+      operationId: tasksIdDelete
+      summary: Deletes a task by its id
       responses:
         "204":
-          description: OK
+          description: Task deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     put:
+      tags:
+        - tasks
+      operationId: tasksIdPut
+      summary: Replaces an existing task
       requestBody:
+        description: The task info to replace
         required: true
         content:
           application/json:
@@ -196,35 +382,62 @@ paths:
               $ref: "#/components/schemas/Task"
       responses:
         "204":
-          description: OK
+          description: Task replaced
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     get:
+      tags:
+        - tasks
+      operationId: tasksIdGet
+      summary: Gets a task by its id
       responses:
         '200':
-          description: OK
+          description: A task
           content:
             application/json:
               schema:
                 $ref:  "#/components/schemas/Task"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
 
   /tasks/{id}/notes:
     parameters:
       - $ref: "#/components/parameters/id"
     get:
+      tags:
+        - tasks
+        - notes
+      operationId: tasksIdNotesGet
+      summary: Gets a paginated list of notes related to an existing task
       parameters:
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/pageSize"
       responses:
         "200":
-          description: OK
+          description: A note
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NoteResult'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     post:
+      tags:
+        - tasks
+        - notes
+      operationId: tasksIdNotesPost
+      summary: Creates a new note on an existing task
       requestBody:
+        description: The note info to store
         required: true
         content:
           application/json:
@@ -232,35 +445,87 @@ paths:
               $ref: "#/components/schemas/Note"
       responses:
         "201":
-          description: OK
+          description: The id of the new note
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Entity"
+          links:
+            notesIdDelete:
+              operationId: notesIdDelete
+              parameters:
+                id: $response.body#/id
+              description: |
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'DELETE /notes/{id}'
+            notesIdGet:
+              operationId: notesIdGet
+              parameters:
+                id: $response.body#/id
+              description: 
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'GET /notes/{id}'
+            notesIdPut:
+              operationId: notesIdPut
+              parameters:
+                id: $response.body#/id
+              description: 
+                The 'id' value returned in the response can be used 
+                as de 'id' parameter in 'PUT /notes/{id}'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /notes/{id}:
     parameters:
       - $ref: "#/components/parameters/id"
     delete:
+      tags:
+        - notes
+      operationId: notesIdDelete
+      summary: Deletes a note by its id
       responses:
         "204":
-          description: OK
+          description: Note deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     put:
+      tags:
+        - notes
+      operationId: notesIdPut
+      summary: Replaces an existing note
       requestBody:
+        description: The note info to replace
+        required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/Note"
       responses:
         "204":
-          description: OK
+          description: Note replaced
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     get:
+      tags:
+        - notes
+      operationId: notesIdGet
+      summary: Gets a note by its id
       responses:
         '200':
-          description: OK
+          description: A note
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Note'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: '#/components/responses/InternalServerError'
