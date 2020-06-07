@@ -40,6 +40,7 @@ components:
       required: true
       schema:
         type: integer
+      example: 0
   responses:
     NotFound:
       description: Resource not found
@@ -49,6 +50,12 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+          example:
+            timestamp: 2020-06-07T10:30:10.694+00:00
+            status: 500
+            error: Internal Server Error
+            message: ""
+            path: /foo/bar
   schemas:
     Error:
       type: object
@@ -152,6 +159,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskList"
+              example:
+                title: Clean house
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
@@ -182,6 +191,8 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/TaskList"
+            example:
+              title: "Clean the house"
       responses:
         "204":
           description: Task list replaced
@@ -209,6 +220,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskResult'
+              example:
+                total: 10
+                data:
+                  - id: 0
+                    title: Clean bedroom
+                  - id: 1
+                    title: Clean kitchen
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
@@ -227,6 +245,8 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Task"
+            example:
+              title: Clean kitchen
       responses:
         "201":
           description: The id of the new Task
@@ -234,6 +254,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Entity"
+              example:
+                id: 2
           links:
             tasksIdDelete:
               operationId: tasksIdDelete
@@ -291,6 +313,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskListResult'
+              example:
+                total: 10
+                data:
+                  - id: 0
+                    title: Clean house
+                  - id: 1
+                    title: Write essay
         "500":
           $ref: '#/components/responses/InternalServerError'
 
@@ -306,6 +335,8 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/TaskList"
+            example:
+              title: Write essay
       responses:
         "201":
           description: The id of the new task list
@@ -313,6 +344,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Entity"
+              example:
+                id: 1
           links:
             listsIdDelete:
               operationId: listsIdDelete
@@ -380,6 +413,8 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Task"
+            example:
+              title: Clean main bedroom
       responses:
         "204":
           description: Task replaced
@@ -400,6 +435,8 @@ paths:
             application/json:
               schema:
                 $ref:  "#/components/schemas/Task"
+              example:
+                title: Clean bedroom
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
@@ -425,6 +462,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NoteResult'
+              example:
+                total: 1
+                data:
+                  - id: 0
+                    content: Should wash sheets
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
@@ -443,6 +485,9 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Note"
+            example:
+              content: "Be careful with the floor"
+            
       responses:
         "201":
           description: The id of the new note
@@ -450,6 +495,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Entity"
+              example:
+                id: 1
           links:
             notesIdDelete:
               operationId: notesIdDelete
@@ -505,6 +552,8 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Note"
+            example:
+              content: Should also wash sheets
       responses:
         "204":
           description: Note replaced
@@ -525,6 +574,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Note'
+              example:
+                content: Should wash sheets
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
