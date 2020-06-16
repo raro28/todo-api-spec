@@ -19,6 +19,10 @@ servers:
     description: spring-boot server
 
 components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
   parameters:
     page:
       in: query
@@ -26,24 +30,79 @@ components:
       description: the 1 based page index
       schema:
         type: integer
+        format: int64
         default: 1
+        minimum: 0
+        maximum: 1000
     pageSize:
       in: query
       name: size
       description: the greater than zero page size
       schema:
         type: integer
+        format: int64
         default: 5
+        minimum: 1
+        maximum: 50
     id:
       name: id
       in: path
       required: true
       schema:
         type: integer
+        format: int64
+        minimum: 0
+        maximum: 1000000
       example: 0
   responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/Error"
+          example:
+            timestamp: 2020-06-07T10:30:10.694+00:00
+            status: 401
+            error: Unauthorized
+            message: ""
+            path: /foo/bar
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/Error"
+          example:
+            timestamp: 2020-06-07T10:30:10.694+00:00
+            status: 403
+            error: Forbidden
+            message: ""
+            path: /foo/bar
     NotFound:
-      description: Resource not found
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            timestamp: 2020-06-07T10:30:10.694+00:00
+            status: 404
+            error: Not found
+            message: ""
+            path: /foo/bar
+    TooManyRequests:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            timestamp: 2020-06-07T10:30:10.694+00:00
+            status: 429
+            error: Too Many Requests
+            message: ""
+            path: /foo/bar
     InternalServerError:
       description: Internal Server Error
       content:
@@ -56,84 +115,134 @@ components:
             error: Internal Server Error
             message: ""
             path: /foo/bar
+    UnknownError:
+      description: Unknown Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            timestamp: 2020-06-07T10:30:10.694+00:00
+            status: 500
+            error: Unknown Error
+            message: ""
+            path: /foo/bar
   schemas:
     Error:
       type: object
+      additionalProperties: false
       properties:
         timestamp:
           type: string
+          pattern: \d{4}\-\d{2}\-\d{2}\w\d{2}:\d{2}:\d{2}\.\d{3}\+\d{2}:\d{2}
+          maxLength: 30
         status:
           type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000000
         error:
           type: string
+          pattern: ^[a-zA-Z0-9_\/]*$
+          maxLength: 255
         message:
           type: string
+          pattern: ^[a-zA-Z0-9_\/]*$
+          maxLength: 255
         path:
           type: string
+          pattern: ^[a-zA-Z0-9_\/]*$
+          maxLength: 255
     DataResult:
       type: object
+      additionalProperties: false
       properties:
         total:
           type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000000
           description: The total sum of entries in all pages
     TaskListResult:
+      additionalProperties: false
       allOf:
         - $ref: "#/components/schemas/DataResult"
         - type: object
           properties:
                 data:
                   type: array
+                  maxItems: 50
                   items:
                     $ref: "#/components/schemas/TaskListEntity"
     TaskResult:
+      additionalProperties: false
       allOf:
         - $ref: "#/components/schemas/DataResult"
         - type: object
           properties:
                 data:
                   type: array
+                  maxItems: 50
                   items:
                     $ref: "#/components/schemas/TaskEntity"
     NoteResult:
+      additionalProperties: false
       allOf:
         - $ref: "#/components/schemas/DataResult"
         - type: object
           properties:
                 data:
                   type: array
+                  maxItems: 50
                   items:
                     $ref: "#/components/schemas/NoteEntity"
     Entity:
       type: object
+      additionalProperties: false
       properties:
         id:
           type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000000
     TaskList:
       type: object
+      additionalProperties: false
       properties:
         title:
           type: string
+          pattern: ^[a-zA-Z0-9]*$
+          maxLength: 255
     Task:
       type: object
+      additionalProperties: false
       properties:
         title:
           type: string
+          pattern: ^[a-zA-Z0-9]*$
+          maxLength: 255
         isCompleted:
           type: boolean
     Note:
       type: object
+      additionalProperties: false
       properties:
         content:
           type: string
+          pattern: /^(?:[^%]|%[0-9A-Fa-f]{2})+$/
+          maxLength: 500
     TaskListEntity:
+      additionalProperties: false
       allOf:
         - $ref: "#/components/schemas/Entity"
         - $ref: "#/components/schemas/TaskList"
     TaskEntity:
+      additionalProperties: false
       allOf:
         - $ref: "#/components/schemas/Entity"
         - $ref: "#/components/schemas/Task"
     NoteEntity:
+      additionalProperties: false
       allOf:
         - $ref: "#/components/schemas/Entity"
         - $ref: "#/components/schemas/Note"
@@ -142,6 +251,9 @@ tags:
   - name: lists
   - name: tasks
   - name: notes
+
+security:
+  - basicAuth: []
 
 paths:
   /lists/{id}:
@@ -161,10 +273,18 @@ paths:
                 $ref: "#/components/schemas/TaskList"
               example:
                 title: Clean house
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     delete:
       tags:
@@ -174,10 +294,18 @@ paths:
       responses:
         "204":
           description: Task list deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     put:
       tags:
@@ -196,10 +324,18 @@ paths:
       responses:
         "204":
           description: Task list replaced
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
   /lists/{id}/tasks:
     parameters:
@@ -227,10 +363,18 @@ paths:
                     title: Clean bedroom
                   - id: 1
                     title: Clean kitchen
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     post:
       tags:
@@ -292,10 +436,18 @@ paths:
               description: |
                 The 'id' value returned in the response can be used 
                 as de 'id' parameter in 'POST /tasks/{id}/notes'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
   /lists:
     get:
@@ -320,8 +472,18 @@ paths:
                     title: Clean house
                   - id: 1
                     title: Write essay
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     post:
       tags:
@@ -382,8 +544,18 @@ paths:
               description: |
                 The 'id' value returned in the response can be used 
                 as de 'id' parameter in 'POST /lists/{id}/tasks'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
   /tasks/{id}:
     parameters:
@@ -396,10 +568,18 @@ paths:
       responses:
         "204":
           description: Task deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     put:
       tags:
@@ -418,10 +598,18 @@ paths:
       responses:
         "204":
           description: Task replaced
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     get:
       tags:
@@ -437,11 +625,18 @@ paths:
                 $ref:  "#/components/schemas/Task"
               example:
                 title: Clean bedroom
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
-
+        default:
+          $ref: '#/components/responses/UnknownError'
 
   /tasks/{id}/notes:
     parameters:
@@ -467,10 +662,18 @@ paths:
                 data:
                   - id: 0
                     content: Should wash sheets
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     post:
       tags:
@@ -519,10 +722,18 @@ paths:
               description: 
                 The 'id' value returned in the response can be used 
                 as de 'id' parameter in 'PUT /notes/{id}'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
   /notes/{id}:
     parameters:
@@ -535,10 +746,18 @@ paths:
       responses:
         "204":
           description: Note deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     put:
       tags:
@@ -557,10 +776,18 @@ paths:
       responses:
         "204":
           description: Note replaced
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
 
     get:
       tags:
@@ -576,7 +803,15 @@ paths:
                 $ref: '#/components/schemas/Note'
               example:
                 content: Should wash sheets
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnknownError'
