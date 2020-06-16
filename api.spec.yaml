@@ -251,6 +251,7 @@ tags:
   - name: lists
   - name: tasks
   - name: notes
+  - name: crud
 
 security:
   - basicAuth: []
@@ -262,6 +263,7 @@ paths:
     get:
       tags:
         - lists
+        - crud
       operationId: listsIdGet
       summary: Gets a task list by its id
       responses:
@@ -289,6 +291,7 @@ paths:
     delete:
       tags:
         - lists
+        - crud
       operationId: listsIdDelete
       summary: Deletes a task list by its id
       responses:
@@ -310,6 +313,7 @@ paths:
     put:
       tags:
         - lists
+        - crud
       operationId: listsIdPut
       summary: Replaces an existing task list
       requestBody:
@@ -344,6 +348,7 @@ paths:
       tags:
         - lists
         - tasks
+        - crud
       operationId: listsIdTasksGet
       summary: Gets a paginated list of tasks related to an existing task list
       parameters:
@@ -380,6 +385,7 @@ paths:
       tags:
         - lists
         - tasks
+        - crud
       operationId: listsIdTasksPost
       summary: Creates a new task on an existing task list
       requestBody:
@@ -453,6 +459,7 @@ paths:
     get:
       tags:
         - lists
+        - crud
       operationId: listsGet
       summary: Gets a paginated list of task lists
       parameters:
@@ -488,6 +495,7 @@ paths:
     post:
       tags:
         - lists
+        - crud
       operationId: listsPost
       summary: Creates a new task list
       requestBody:
@@ -563,6 +571,7 @@ paths:
     delete:
       tags:
         - tasks
+        - crud
       operationId: tasksIdDelete
       summary: Deletes a task by its id
       responses:
@@ -584,6 +593,7 @@ paths:
     put:
       tags:
         - tasks
+        - crud
       operationId: tasksIdPut
       summary: Replaces an existing task
       requestBody:
@@ -614,6 +624,7 @@ paths:
     get:
       tags:
         - tasks
+        - crud
       operationId: tasksIdGet
       summary: Gets a task by its id
       responses:
@@ -645,6 +656,7 @@ paths:
       tags:
         - tasks
         - notes
+        - crud
       operationId: tasksIdNotesGet
       summary: Gets a paginated list of notes related to an existing task
       parameters:
@@ -679,6 +691,7 @@ paths:
       tags:
         - tasks
         - notes
+        - crud
       operationId: tasksIdNotesPost
       summary: Creates a new note on an existing task
       requestBody:
@@ -741,6 +754,7 @@ paths:
     delete:
       tags:
         - notes
+        - crud
       operationId: notesIdDelete
       summary: Deletes a note by its id
       responses:
@@ -762,6 +776,7 @@ paths:
     put:
       tags:
         - notes
+        - crud
       operationId: notesIdPut
       summary: Replaces an existing note
       requestBody:
@@ -792,6 +807,7 @@ paths:
     get:
       tags:
         - notes
+        - crud
       operationId: notesIdGet
       summary: Gets a note by its id
       responses:
