@@ -33,7 +33,7 @@ components:
         format: int32
         default: 1
         minimum: 0
-        maximum: 1000
+        maximum: 20000
     pageSize:
       in: query
       name: size
@@ -55,6 +55,18 @@ components:
         maximum: 1000000
       example: 0
   responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/Error"
+          example:
+            timestamp: 2020-06-07T10:30:10.694+00:00
+            status: 401
+            error: Bad Request
+            message: ""
+            path: /foo/bar
     Unauthorized:
       description: Unauthorized
       content:
@@ -275,6 +287,8 @@ paths:
                 $ref: "#/components/schemas/TaskList"
               example:
                 title: Clean house
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -297,6 +311,8 @@ paths:
       responses:
         "204":
           description: Task list deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -328,6 +344,8 @@ paths:
       responses:
         "204":
           description: Task list replaced
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -368,6 +386,8 @@ paths:
                     title: Clean bedroom
                   - id: 1
                     title: Clean kitchen
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -442,6 +462,8 @@ paths:
               description: |
                 The 'id' value returned in the response can be used 
                 as de 'id' parameter in 'POST /tasks/{id}/notes'
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -479,6 +501,8 @@ paths:
                     title: Clean house
                   - id: 1
                     title: Write essay
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -552,6 +576,8 @@ paths:
               description: |
                 The 'id' value returned in the response can be used 
                 as de 'id' parameter in 'POST /lists/{id}/tasks'
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -577,6 +603,8 @@ paths:
       responses:
         "204":
           description: Task deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -608,6 +636,8 @@ paths:
       responses:
         "204":
           description: Task replaced
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -636,6 +666,8 @@ paths:
                 $ref:  "#/components/schemas/Task"
               example:
                 title: Clean bedroom
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -664,7 +696,7 @@ paths:
         - $ref: "#/components/parameters/pageSize"
       responses:
         "200":
-          description: A note
+          description: A list of notes
           content:
             application/json:
               schema:
@@ -674,6 +706,8 @@ paths:
                 data:
                   - id: 0
                     content: Should wash sheets
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -735,6 +769,8 @@ paths:
               description: 
                 The 'id' value returned in the response can be used 
                 as de 'id' parameter in 'PUT /notes/{id}'
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -760,6 +796,8 @@ paths:
       responses:
         "204":
           description: Note deleted
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -791,6 +829,8 @@ paths:
       responses:
         "204":
           description: Note replaced
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -819,6 +859,8 @@ paths:
                 $ref: '#/components/schemas/Note'
               example:
                 content: Should wash sheets
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
