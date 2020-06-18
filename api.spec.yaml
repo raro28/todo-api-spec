@@ -233,7 +233,7 @@ components:
           type: string
           pattern: ^[a-zA-Z0-9]*$
           maxLength: 255
-        isCompleted:
+        completed:
           type: boolean
     Note:
       type: object
