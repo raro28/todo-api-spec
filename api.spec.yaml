@@ -20,9 +20,15 @@ servers:
 
 components:
   securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
+    oAuth2:
+      type: oauth2
+      description: This API uses OAuth 2 with the implicit grant flow.
+      flows:
+        implicit:
+          authorizationUrl: http://localhost:8880/auth/realms/todolist/protocol/openid-connect/auth
+          scopes:
+            read: read
+            write: write
   parameters:
     page:
       in: query
@@ -281,9 +287,6 @@ tags:
   - name: notes
   - name: crud
 
-security:
-  - basicAuth: []
-
 paths:
   /lists/{id}:
     parameters:
@@ -294,6 +297,8 @@ paths:
         - crud
       operationId: listsIdGet
       summary: Gets a task list by its id
+      security:
+        - oAuth2: [read]
       responses:
         "200":
           description: A task list
@@ -324,6 +329,8 @@ paths:
         - crud
       operationId: listsIdDelete
       summary: Deletes a task list by its id
+      security:
+        - oAuth2: [write]
       responses:
         "204":
           description: Task list deleted
@@ -348,6 +355,8 @@ paths:
         - crud
       operationId: listsIdPut
       summary: Replaces an existing task list
+      security:
+        - oAuth2: [write]
       requestBody:
         description: The task list info to replace
         required: true
@@ -385,6 +394,8 @@ paths:
         - crud
       operationId: listsIdTasksGet
       summary: Gets a paginated list of tasks related to an existing task list
+      security:
+        - oAuth2: [read]
       parameters:
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/pageSize"
@@ -424,6 +435,8 @@ paths:
         - crud
       operationId: listsIdTasksPost
       summary: Creates a new task on an existing task list
+      security:
+        - oAuth2: [write]
       requestBody:
         description: The task info to store
         required: true
@@ -500,6 +513,8 @@ paths:
         - crud
       operationId: listsGet
       summary: Gets a paginated list of task lists
+      security:
+        - oAuth2: [read]
       parameters:
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/pageSize"
@@ -538,6 +553,8 @@ paths:
         - crud
       operationId: listsPost
       summary: Creates a new task list
+      security:
+        - oAuth2: [write]
       requestBody:
         description: The task list info to store
         required: true
@@ -616,6 +633,8 @@ paths:
         - crud
       operationId: tasksIdDelete
       summary: Deletes a task by its id
+      security:
+        - oAuth2: [write]
       responses:
         "204":
           description: Task deleted
@@ -640,6 +659,8 @@ paths:
         - crud
       operationId: tasksIdPut
       summary: Replaces an existing task
+      security:
+        - oAuth2: [write]
       requestBody:
         description: The task info to replace
         required: true
@@ -673,6 +694,8 @@ paths:
         - crud
       operationId: tasksIdGet
       summary: Gets a task by its id
+      security:
+        - oAuth2: [read]
       responses:
         '200':
           description: A task
@@ -707,6 +730,8 @@ paths:
         - crud
       operationId: tasksIdNotesGet
       summary: Gets a paginated list of notes related to an existing task
+      security:
+        - oAuth2: [read]
       parameters:
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/pageSize"
@@ -744,6 +769,8 @@ paths:
         - crud
       operationId: tasksIdNotesPost
       summary: Creates a new note on an existing task
+      security:
+        - oAuth2: [write]
       requestBody:
         description: The note info to store
         required: true
@@ -809,6 +836,8 @@ paths:
         - crud
       operationId: notesIdDelete
       summary: Deletes a note by its id
+      security:
+        - oAuth2: [write]
       responses:
         "204":
           description: Note deleted
@@ -833,6 +862,8 @@ paths:
         - crud
       operationId: notesIdPut
       summary: Replaces an existing note
+      security:
+        - oAuth2: [write]
       requestBody:
         description: The note info to replace
         required: true
@@ -866,6 +897,8 @@ paths:
         - crud
       operationId: notesIdGet
       summary: Gets a note by its id
+      security:
+        - oAuth2: [read]
       responses:
         '200':
           description: A note
