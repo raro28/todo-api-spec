@@ -22,13 +22,24 @@ components:
   securitySchemes:
     oAuth2:
       type: oauth2
-      description: This API uses OAuth 2 with the implicit grant flow.
+      description: This API uses OAuth 2
       flows:
         implicit:
-          authorizationUrl: http://localhost:8880/auth/realms/todolist/protocol/openid-connect/auth
+          authorizationUrl: 'http://mumei:8880/auth/realms/todolist/protocol/openid-connect/auth'
           scopes:
-            read: read
-            write: write
+            read: read access
+            write: Write access
+        password:
+          tokenUrl: 'http://mumei:8880/auth/realms/todolist/protocol/openid-connect/token'
+          scopes:
+            read: read access
+            write: Write access
+        authorizationCode:
+          authorizationUrl: 'http://mumei:8880/auth/realms/todolist/protocol/openid-connect/auth'
+          tokenUrl: 'http://mumei:8880/auth/realms/todolist/protocol/openid-connect/token'
+          scopes:
+            read: read access
+            write: Write access
   parameters:
     page:
       in: query
