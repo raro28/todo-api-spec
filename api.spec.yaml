@@ -32,7 +32,7 @@ components:
         type: integer
         format: int32
         default: 1
-        minimum: 0
+        minimum: 1
         maximum: 20000
     pageSize:
       in: query
@@ -171,9 +171,15 @@ components:
       properties:
         total:
           type: integer
-          format: int32
+          format: $int64
           minimum: 0
           maximum: 1000000
+          description: The total sum of entries in all pages
+        totalPages:
+          type: integer
+          format: $int32
+          minimum: 0
+          maximum: 20000
           description: The total sum of entries in all pages
     TaskListResult:
       additionalProperties: false
