@@ -169,6 +169,16 @@ components:
       type: object
       additionalProperties: false
       properties:
+        current:
+          type: integer
+          format: $int32
+          minimum: 1
+          maximum: 20000
+        size:
+          type: integer
+          format: $int32
+          minimum: 1
+          maximum: 50
         total:
           type: integer
           format: $int64
